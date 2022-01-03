@@ -5,3 +5,6 @@ A simple demo application that shows a set of buttons that contain a "loading" s
 When in the "loading" state, the buttons will replace their text with an animated set of dots
 that pulse, flash, or bounce.
 
+###   
+
+![buttons-demo](https://user-images.githubusercontent.com/4521694/147952242-ae55f037-6d5f-479d-8ff1-416bb6984720.gif)
