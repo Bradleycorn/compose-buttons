@@ -192,7 +192,8 @@ fun PulsingDot(
  *   Defaults to 0 milliseconds (no delay).
  * @param transition an [InfiniteTransition] to use for animating the dot.
  *   This is useful if you want to combine this animation with others
- */@Composable
+ */
+@Composable
 fun FlashingDot(
     dotSize: Dp = 12.dp,
     color: Color = LocalContentColor.current,

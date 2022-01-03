@@ -11,6 +11,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.dp
 
 
@@ -157,18 +159,6 @@ private fun MyButtonContent(
     loading: Boolean,
     loadingIndicatorType: LoadingIndicatorTypes) {
 
-    // TODO: this could probably be done better with something like
-    //  a custom layout (so we could measure the text and then just
-    //  not place it if we don't want to render it) or other tools.
-
-    // Many times, a button's width will be determined
-    // by the width of the text content. If the button
-    // enters the "loading" state, we want it to keep the
-    // width of it's text content.
-    // So to achieve that, we'll still draw the text, and just
-    // make it transparent when in the "loading" state, and
-    // render the loading indicator over the top of it.
-
     // Set the text color.
     // using "Unspecified" as the default will cause it to use the button content color
     // which is what we want.
@@ -177,14 +167,43 @@ private fun MyButtonContent(
         else -> Color.Unspecified
     }
 
-    // Wrap the text and loading indicator in a box, so that they
-    // are drawn over the top of each other.
-    Box(contentAlignment = Alignment.Center) {
-        Text(text = text, color = textColor)
+    // Use a Custom Layout so that we can measure the width of both the
+    // button text and the indicator and make sure that the resulting
+    // layout is sized to fit either/both.
+    // Then we can place either the text or the indicator based on the loading state.
+    // This helps ensure that the button does not change size when switching the loading state.
+    Layout(
+        content = {
+            // Content is the Text and the LoadingIndicator
+            Text(text = text, color = textColor, modifier = Modifier.layoutId("buttonText"))
+            LoadingIndicator(type = loadingIndicatorType, modifier = Modifier.layoutId("loadingIndicator"))
+        }) { measureables, constraints ->
 
-        // Draw the loading indicator when necessary.
-        if (loading) {
-            LoadingIndicator(type = loadingIndicatorType)
+        // First, measure both the text and the indicator, with no additional contraints on their size.
+        val textPlaceable = measureables.first { it.layoutId == "buttonText"}.measure(constraints)
+        val indicatorPlaceable = measureables.first { it.layoutId == "loadingIndicator"}.measure(constraints)
+
+        // Now calculate the layout width, making sure it's big enough to fit the larger
+        // of of the 2 placeables.
+        val layoutWidth = textPlaceable.width.coerceAtLeast(indicatorPlaceable.width)
+        val layoutHeight = textPlaceable.height.coerceAtLeast(indicatorPlaceable.height)
+
+        // Now, create the layout at the appropriate size
+        layout(layoutWidth,layoutHeight) {
+            // Place EITHER the indicator or the text (but not both), based on the loading state
+            if (loading) {
+                // Calculate the X and Y position of the indicator so that it's centered in the layout.
+                val indicatorX = (layoutWidth - indicatorPlaceable.width) / 2
+                val indicatorY = (layoutHeight - indicatorPlaceable.height) / 2
+                // Place the indicator
+                indicatorPlaceable.placeRelative(x = indicatorX, y = indicatorY)
+            } else {
+                // Calculate the X and Y position of the text so that it's centered in the layout.
+                val textX = (layoutWidth - textPlaceable.width) / 2
+                val textY = (layoutHeight - textPlaceable.height) / 2
+                //Place the text
+                textPlaceable.placeRelative(x = textX, y = textY)
+            }
         }
     }
 }
