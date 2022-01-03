@@ -157,6 +157,10 @@ private fun MyButtonContent(
     loading: Boolean,
     loadingIndicatorType: LoadingIndicatorTypes) {
 
+    // TODO: this could probably be done better with something like
+    //  a custom layout (so we could measure the text and then just
+    //  not place it if we don't want to render it) or other tools.
+
     // Many times, a button's width will be determined
     // by the width of the text content. If the button
     // enters the "loading" state, we want it to keep the
