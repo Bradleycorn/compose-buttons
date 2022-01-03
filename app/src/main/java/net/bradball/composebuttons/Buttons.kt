@@ -159,14 +159,6 @@ private fun MyButtonContent(
     loading: Boolean,
     loadingIndicatorType: LoadingIndicatorTypes) {
 
-    // Set the text color.
-    // using "Unspecified" as the default will cause it to use the button content color
-    // which is what we want.
-    val textColor = when {
-        loading -> Color.Transparent
-        else -> Color.Unspecified
-    }
-
     // Use a Custom Layout so that we can measure the width of both the
     // button text and the indicator and make sure that the resulting
     // layout is sized to fit either/both.
@@ -175,7 +167,7 @@ private fun MyButtonContent(
     Layout(
         content = {
             // Content is the Text and the LoadingIndicator
-            Text(text = text, color = textColor, modifier = Modifier.layoutId("buttonText"))
+            Text(text = text, modifier = Modifier.layoutId("buttonText"))
             LoadingIndicator(type = loadingIndicatorType, modifier = Modifier.layoutId("loadingIndicator"))
         }) { measureables, constraints ->
 
@@ -183,8 +175,8 @@ private fun MyButtonContent(
         val textPlaceable = measureables.first { it.layoutId == "buttonText"}.measure(constraints)
         val indicatorPlaceable = measureables.first { it.layoutId == "loadingIndicator"}.measure(constraints)
 
-        // Now calculate the layout width, making sure it's big enough to fit the larger
-        // of of the 2 placeables.
+        // Now calculate the layout width,
+        // making sure it's big enough to fit the larger of the 2 placeables.
         val layoutWidth = textPlaceable.width.coerceAtLeast(indicatorPlaceable.width)
         val layoutHeight = textPlaceable.height.coerceAtLeast(indicatorPlaceable.height)
 
